@@ -8,7 +8,7 @@
 #include <netdb.h> //getaddrinfo()
 
 int main(int argc, char **argv){
-    int sock, cnt = 0;
+    int sock, s, cnt = 0;
     char buf[50], deststr[50];
     struct addrinfo hints;
     struct addrinfo* res = NULL;
@@ -31,7 +31,7 @@ int main(int argc, char **argv){
     hints.ai_protocol = 0;
     hints.ai_flags = AI_NUMERICSERV;
 
-    if (getaddrinfo(argv[1], argv[2], &hints, &res) != 0) {
+    if (s = (int) getaddrinfo(argv[1], argv[2], &hints, &res) != 0) {
         printf("failed to getaddrinfo: %s\n", gai_strerror(s));
         exit(EXIT_FAILURE);
     }
