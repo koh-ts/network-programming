@@ -7,30 +7,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// struct sockaddr_in
-// {
-//     __SOCKADDR_COMMON (sin_);
-//     in_port_t sin_port; /* Port number.*/
-//     struct in_addr sin_addr; /* Internet address.*/
-//     /* Pad to size of 'struct sockaddr'. */
-//     unsigned char sin_zero[sizeof (struct sockaddr) - __SOCKADDR_COMMON_SIZE - sizeof (in_port_t) - sizeof (struct in_addr)];
-// };
-// struct sockaddr_in6
-// {
-//     __SOCKADDR_COMMON (sin6_);
-//     in_port_t sin6_port; /* Transport layer port #	*/
-//     uint32_t sin6_flowinfo; /* IPv6 flow information */
-//     struct in6_addr	sin6_addr; /* IPv6 address */
-//     uint32_t sin6_scope_id; /* IPv6 scope-id */
-// };
-
-// #define	__SOCKADDR_COMMON(sa_prefix) sa_family_t sa_prefix##family
-
 int main(int argc, char **argv){
     unsigned int destport;
-    // struct sockaddr_in server;
     int sock, s, n, f = 0;
-    char buf[30], deststr[30];
+    char buf[50], deststr[50];
     strcpy (deststr, argv[1]);
 
     if(argc != 3){
@@ -45,13 +25,14 @@ int main(int argc, char **argv){
         }
     }
 
-    if(f == 1){
-        struct sockaddr_in server;
+    if((destport = (unsigned int) atoi(argv[2])) == 0){
+        printf("Invalid destination port number.\n");
+        exit(EXIT_FAILURE);
+    }
 
-        if((destport = (unsigned int) atoi(argv[2])) == 0){
-            printf("Invalid destination port number.\n");
-            exit(EXIT_FAILURE);
-        }
+    if(f == 1){ //IPv4
+        struct sockaddr_in server;
+        
         server.sin_family =	AF_INET;
         server.sin_port = htons(destport);
 
@@ -69,15 +50,7 @@ int main(int argc, char **argv){
             perror("failed to connect.");
             exit(EXIT_FAILURE);
         }
-
-        memset(buf, 0, sizeof(buf));
-        n =	read(sock, buf, sizeof(buf));
-        printf("%s", buf);
-
-        close(sock);
-        return EXIT_SUCCESS;
-
-    }else{
+    }else{ // IPv6
         struct sockaddr_in6 server;
 
         server.sin6_family = AF_INET6;
@@ -97,12 +70,14 @@ int main(int argc, char **argv){
             perror("failed to connect.");
             exit(EXIT_FAILURE);
         }
-
-        memset(buf, 0, sizeof(buf));
-        n =	read(sock, buf, sizeof(buf));
-        printf("%s", buf);
-
-        close(sock);
-        return EXIT_SUCCESS;
     }
+
+    memset(buf, 0, sizeof(buf));
+    if(read(sock, buf, sizeof(buf)) == -1){
+        perror("failed to read.");
+        exit(EXIT_FAILURE);
+    }
+    printf("%s", buf);
+    close(sock);
+    return EXIT_SUCCESS;
 }
