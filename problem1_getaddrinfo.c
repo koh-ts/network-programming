@@ -52,6 +52,7 @@ int main(int argc, char **argv){
             exit(EXIT_FAILURE);
         }
     }
+    freeaddrinfo(res);
     memset(buf, 0, sizeof(buf));
     if(read(sock, buf, sizeof(buf)) == -1){
         perror("failed to read.");
@@ -59,5 +60,4 @@ int main(int argc, char **argv){
     }
     printf("%s", buf);
     close(sock);
-    freeaddrinfo(res);
 }
