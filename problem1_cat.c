@@ -28,8 +28,8 @@
 
 int main(int argc, char **argv){
     unsigned int destport;
-    struct sockaddr_in server;
-    int sock, s, n;
+    // struct sockaddr_in server;
+    int sock, s, n, f = 0;
     char buf[30], deststr[30];
     strcpy (deststr, argv[1]);
 
@@ -38,32 +38,71 @@ int main(int argc, char **argv){
         exit(EXIT_FAILURE);
     }
 
-    if((destport = (unsigned int) atoi(argv[2])) == 0){
-        printf("Invalid destination port number.\n");
-        exit(EXIT_FAILURE);
-    }
-    server.sin_family =	AF_INET;
-    server.sin_port = htons(destport);
-
-    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-        perror("failed to create a socket.");
-        exit(EXIT_FAILURE);
+    for(int i = 0; i < strlen(argv[1]); ++i){
+        if(argv[1][i] == '.'){
+            f = 1;
+            break;
+        }
     }
 
-    if(s = (int) inet_pton(AF_INET, deststr, &server.sin_addr) == 0){
-        printf("Invalid IP address.\n");
-        exit(EXIT_FAILURE);
-    };
+    if(f == 1){
+        struct sockaddr_in server;
 
-    if(connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0){
-        perror("failed to connect.");
-        exit(EXIT_FAILURE);
+        if((destport = (unsigned int) atoi(argv[2])) == 0){
+            printf("Invalid destination port number.\n");
+            exit(EXIT_FAILURE);
+        }
+        server.sin_family =	AF_INET;
+        server.sin_port = htons(destport);
+
+        if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+            perror("failed to create a socket.");
+            exit(EXIT_FAILURE);
+        }
+
+        if(s = (int) inet_pton(AF_INET, deststr, &server.sin_addr) == 0){
+            printf("Invalid IP address.\n");
+            exit(EXIT_FAILURE);
+        };
+
+        if(connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0){
+            perror("failed to connect.");
+            exit(EXIT_FAILURE);
+        }
+
+        memset(buf, 0, sizeof(buf));
+        n =	read(sock, buf, sizeof(buf));
+        printf("%s", buf);
+
+        close(sock);
+        return EXIT_SUCCESS;
+
+    }else{
+        struct sockaddr_in6 server;
+
+        server.sin6_family = AF_INET6;
+        server.sin6_port = htons(destport);
+
+        if((sock = socket(AF_INET6, SOCK_STREAM, 0)) < 0){
+            perror("failed to create a socket.");
+            exit(EXIT_FAILURE);
+        }
+
+        if((int) inet_pton(AF_INET6, deststr, &server.sin6_addr) == 0){
+            printf("Invalid IP address.\n");
+            exit(EXIT_FAILURE);
+        };
+
+        if(connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0){
+            perror("failed to connect.");
+            exit(EXIT_FAILURE);
+        }
+
+        memset(buf, 0, sizeof(buf));
+        n =	read(sock, buf, sizeof(buf));
+        printf("%s", buf);
+
+        close(sock);
+        return EXIT_SUCCESS;
     }
-
-    memset(buf, 0, sizeof(buf));
-    n =	read(sock, buf, sizeof(buf));
-    printf("%s", buf);
-
-    close(sock);
-    return EXIT_SUCCESS;
 }
