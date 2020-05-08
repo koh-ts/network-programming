@@ -11,13 +11,13 @@ int main(int argc, char **argv){
     unsigned int destport;
     int sock, f = 0;
     char buf[50], deststr[50];
-    strcpy (deststr, argv[1]);
-
+    
     if(argc != 3){ //check the num of arguments
         printf("Useage: %s <IP Address> <Port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-
+    
+    strcpy (deststr, argv[1]);
     for(int i = 0; i < strlen(argv[1]); ++i){ //check whether IPv4 or IPv6
         if(argv[1][i] == '.'){
             f = 1;
